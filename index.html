@@ -21,8 +21,7 @@
     }
     #loading-screen h2 {
       font-family: 'Courier New', monospace; font-size: 26px; letter-spacing: 6px;
-      color: #cc0000;
-      text-shadow: 0 0 16px #cc000099;
+      color: #cc0000; text-shadow: 0 0 16px #cc000099;
     }
     #loading-screen .subtitle {
       font-family: 'Courier New', monospace; font-size: 11px;
@@ -46,14 +45,8 @@
       letter-spacing: 1px;
     }
 
-    #gameContainer {
-      width: 100%; height: 100%; display: none;
-      position: fixed; inset: 0;
-    }
-    #unity-canvas {
-      width: 100%; height: 100%;
-      display: block;
-    }
+    #gameContainer { width: 100%; height: 100%; display: none; position: fixed; inset: 0; }
+    #unity-canvas { width: 100%; height: 100%; display: block; }
   </style>
 </head>
 <body>
@@ -61,8 +54,7 @@
 <div id="loading-screen">
   <img class="thumb"
     src="https://os-worker.unityroom.com/unityroom_production/icon/298420/icon_20260518_124606.gif?h=1779075966"
-    alt="END CREDITS"
-    onerror="this.style.display='none'">
+    alt="END CREDITS" onerror="this.style.display='none'">
   <h2>END CREDITS</h2>
   <div class="subtitle">8番出口ライク ホラー探索ゲーム</div>
   <div class="progress-wrap"><div class="progress-fill" id="pf"></div></div>
@@ -76,20 +68,19 @@
 
 <script>
 (function () {
-  var RAW = "https://raw.githubusercontent.com/kuru-bana/End-CREDITS/main/webgl";
   var CDN = "https://cdn.jsdelivr.net/gh/kuru-bana/End-CREDITS@main/webgl";
+  var RAW = "https://raw.githubusercontent.com/kuru-bana/End-CREDITS/main/webgl";
 
-  var pfEl      = document.getElementById('pf');
-  var pctEl     = document.getElementById('pct');
-  var cdnLabel  = document.getElementById('cdn-label');
-  var loadingEl = document.getElementById('loading-screen');
-  var container = document.getElementById('gameContainer');
-  var canvas    = document.getElementById('unity-canvas');
+  var pfEl     = document.getElementById('pf');
+  var pctEl    = document.getElementById('pct');
+  var cdnLabel = document.getElementById('cdn-label');
+  var loadingEl= document.getElementById('loading-screen');
+  var container= document.getElementById('gameContainer');
+  var canvas   = document.getElementById('unity-canvas');
 
   var started = false;
   function showGame() {
-    if (started) return;
-    started = true;
+    if (started) return; started = true;
     setTimeout(function () {
       loadingEl.style.display = 'none';
       container.style.display = 'block';
@@ -112,15 +103,14 @@
 
   function startGame() {
     var config = {
-      dataUrl:            RAW + "/webgl.data.gz",
-      frameworkUrl:       RAW + "/webgl.framework.js.gz",
-      codeUrl:            RAW + "/webgl.wasm.gz",
+      dataUrl:            CDN + "/webgl.data",
+      frameworkUrl:       CDN + "/webgl.framework.js",
+      codeUrl:            RAW + "/webgl.wasm",
       streamingAssetsUrl: "StreamingAssets",
       companyName:        "empty",
       productName:        "END CREDITS",
       productVersion:     "0",
     };
-
     cdnLabel.textContent = 'ゲームデータを読み込み中...';
 
     createUnityInstance(canvas, config, function (progress) {
@@ -140,25 +130,16 @@
       { url: RAW + '/webgl.loader.js', label: 'GitHub Raw' }
     ];
     var idx = 0;
-
     function tryNext() {
-      if (idx >= sources.length) {
-        showError('ローダーの読み込みに失敗しました');
-        return;
-      }
+      if (idx >= sources.length) { showError('ローダーの読み込みに失敗しました'); return; }
       var src = sources[idx++];
       cdnLabel.textContent = src.label + ' から接続中...';
-
       var s = document.createElement('script');
       s.src = src.url;
-      s.onload = function () {
-        cdnLabel.textContent = src.label + ' 接続成功';
-        startGame();
-      };
+      s.onload = function () { cdnLabel.textContent = src.label + ' 接続成功'; startGame(); };
       s.onerror = function () { tryNext(); };
       document.body.appendChild(s);
     }
-
     tryNext();
   }
 
