@@ -40,28 +40,22 @@
     <div class="pct" id="pct">0%</div>
   </div>
   <canvas id="canvas"></canvas>
-  <script>
-  var DROPBOX_PCK_URL = "REPLACE_WITH_DROPBOX_DIRECT_LINK";
-  var RAW_BASE = "https://raw.githubusercontent.com/kuru-bana/End-CREDITS/main/buckshot-roulette/game";
-
-  var statusEl  = document.getElementById("status");
-  var statusTxt = document.getElementById("statusText");
-  var barFill   = document.getElementById("barFill");
-  var pctEl     = document.getElementById("pct");
-
-  function hideStatus() {
-    statusEl.style.display = "none";
-  }
-  function setProgress(p, label) {
-    var pct = Math.round(p * 100);
-    barFill.style.width = pct + "%";
-    pctEl.textContent   = pct + "%";
-    if (label) statusTxt.textContent = label;
-  }
-  </script>
   <script src="https://cdn.jsdelivr.net/gh/kuru-bana/End-CREDITS@main/buckshot-roulette/game/index.js"></script>
   <script>
   (async function () {
+    var statusEl  = document.getElementById("status");
+    var statusTxt = document.getElementById("statusText");
+    var barFill   = document.getElementById("barFill");
+    var pctEl     = document.getElementById("pct");
+
+    function hideStatus() { statusEl.style.display = "none"; }
+    function setProgress(cur, total, label) {
+      var pct = total > 0 ? Math.round(cur / total * 100) : 0;
+      barFill.style.width = pct + "%";
+      pctEl.textContent   = pct + "%";
+      if (label) statusTxt.textContent = label;
+    }
+
     try {
       var canvas = document.getElementById("canvas");
       var GODOT_CONFIG = {
@@ -69,8 +63,8 @@
         "canvasResizePolicy": 2,
         "emscriptenPoolSize": 8,
         "ensureCrossOriginIsolationHeaders": false,
-        "executable": RAW_BASE + "/index",
-        "mainPack": DROPBOX_PCK_URL,
+        "executable": "https://raw.githubusercontent.com/kuru-bana/End-CREDITS/main/buckshot-roulette/game/index",
+        "mainPack": "https://dl.dropboxusercontent.com/scl/fi/4oeb3jdrkjxz4n7mg5kx9/index.pck?rlkey=9yd957d5i061qt2dae9dgfz40&st=dzy938d4",
         "experimentalVK": false,
         "fileSizes": { "index.pck": 386338968, "index.wasm": 36145869 },
         "focusCanvas": true,
@@ -78,14 +72,16 @@
         "godotPoolSize": 4
       };
       var engine = new Engine(GODOT_CONFIG);
+      statusTxt.textContent = "Starting game...";
       await engine.startGame({
+        canvas: canvas,
         onProgress: function (current, total) {
-          if (total > 0) setProgress(current / total, "Loading game data...");
+          setProgress(current, total, "Loading game data...");
         }
       });
       hideStatus();
     } catch (e) {
-      statusTxt.textContent = "Error: " + (e.message || e);
+      statusTxt.textContent = "Error: " + (e.message || String(e));
       barFill.style.background = "#cc0000";
     }
   })();
