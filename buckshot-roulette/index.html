@@ -7,63 +7,87 @@
     <style>
       * { margin: 0; padding: 0; box-sizing: border-box; }
       html, body { width: 100%; height: 100%; background: #0a0a0a; overflow: hidden; }
-      #loading-screen {
+      body { display: flex; align-items: center; justify-content: center; }
+      #status {
         position: fixed; inset: 0; background: #0a0a0a;
         display: flex; flex-direction: column; align-items: center;
         justify-content: center; gap: 16px; z-index: 100;
       }
-      #loading-screen h2 {
-        font-family: "Courier New", monospace; font-size: 22px; letter-spacing: 6px;
+      #status h2 {
+        font-family: "Courier New", monospace; font-size: 20px; letter-spacing: 6px;
         color: #b8a020; text-shadow: 0 0 16px #b8a02099;
       }
-      #loading-screen .subtitle {
-        font-family: "Courier New", monospace; font-size: 11px;
-        color: #444; letter-spacing: 2px;
+      #status .sub {
+        font-family: "Courier New", monospace; font-size: 11px; color: #444; letter-spacing: 2px;
       }
-      #loading-screen .spinner {
-        width: 40px; height: 40px;
-        border: 3px solid #222;
-        border-top: 3px solid #b8a020;
-        border-radius: 50%;
-        animation: spin 1s linear infinite;
+      #status .bar-wrap {
+        width: 260px; height: 4px; background: #1a1a00; border-radius: 2px; overflow: hidden;
       }
-      @keyframes spin { to { transform: rotate(360deg); } }
-      #gameContainer {
-        display: none; position: fixed; inset: 0; background: #000;
+      #status .bar-fill {
+        height: 100%; background: linear-gradient(90deg, #7a6a00, #b8a020);
+        width: 0%; transition: width 0.3s;
       }
-      #gameContainer.active { display: block; }
-      #gameContainer iframe {
-        width: 100%; height: 100%; border: none; display: block;
-      }
+      #status .pct { font-family: "Courier New", monospace; color: #7a6a00; font-size: 12px; }
+      canvas#canvas { display: block; width: 100vw; height: 100vh; }
     </style>
   </head>
   <body>
-  <div id="loading-screen">
-    <div class="spinner"></div>
+  <div id="status">
+    <img src="https://cdn.jsdelivr.net/gh/kuru-bana/End-CREDITS@main/buckshot-roulette/game/index.png" style="width:200px;height:200px;object-fit:contain;border-radius:8px;" onerror="this.style.display='none'">
     <h2>BUCKSHOT ROULETTE</h2>
-    <div class="subtitle">loading game...</div>
+    <div class="sub" id="statusText">Loading engine...</div>
+    <div class="bar-wrap"><div class="bar-fill" id="barFill"></div></div>
+    <div class="pct" id="pct">0%</div>
   </div>
-  <div id="gameContainer">
-    <iframe
-      id="gameFrame"
-      src="https://period.mentor.math.principal.online.ovieags.gob.mx/5/html/Buckshot%20Roulette/game/index.html"
-      allow="fullscreen; pointer-lock"
-      allowfullscreen>
-    </iframe>
-  </div>
+  <canvas id="canvas"></canvas>
   <script>
-  (function () {
-    var frame = document.getElementById("gameFrame");
-    var loading = document.getElementById("loading-screen");
-    var container = document.getElementById("gameContainer");
-    frame.addEventListener("load", function () {
-      loading.style.display = "none";
-      container.classList.add("active");
-    });
-    setTimeout(function () {
-      loading.style.display = "none";
-      container.classList.add("active");
-    }, 5000);
+  var DROPBOX_PCK_URL = "REPLACE_WITH_DROPBOX_DIRECT_LINK";
+  var RAW_BASE = "https://raw.githubusercontent.com/kuru-bana/End-CREDITS/main/buckshot-roulette/game";
+
+  var statusEl  = document.getElementById("status");
+  var statusTxt = document.getElementById("statusText");
+  var barFill   = document.getElementById("barFill");
+  var pctEl     = document.getElementById("pct");
+
+  function hideStatus() {
+    statusEl.style.display = "none";
+  }
+  function setProgress(p, label) {
+    var pct = Math.round(p * 100);
+    barFill.style.width = pct + "%";
+    pctEl.textContent   = pct + "%";
+    if (label) statusTxt.textContent = label;
+  }
+  </script>
+  <script src="https://cdn.jsdelivr.net/gh/kuru-bana/End-CREDITS@main/buckshot-roulette/game/index.js"></script>
+  <script>
+  (async function () {
+    try {
+      var canvas = document.getElementById("canvas");
+      var GODOT_CONFIG = {
+        "args": [],
+        "canvasResizePolicy": 2,
+        "emscriptenPoolSize": 8,
+        "ensureCrossOriginIsolationHeaders": false,
+        "executable": RAW_BASE + "/index",
+        "mainPack": DROPBOX_PCK_URL,
+        "experimentalVK": false,
+        "fileSizes": { "index.pck": 386338968, "index.wasm": 36145869 },
+        "focusCanvas": true,
+        "gdextensionLibs": [],
+        "godotPoolSize": 4
+      };
+      var engine = new Engine(GODOT_CONFIG);
+      await engine.startGame({
+        onProgress: function (current, total) {
+          if (total > 0) setProgress(current / total, "Loading game data...");
+        }
+      });
+      hideStatus();
+    } catch (e) {
+      statusTxt.textContent = "Error: " + (e.message || e);
+      barFill.style.background = "#cc0000";
+    }
   })();
   </script>
   </body>
