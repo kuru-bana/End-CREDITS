@@ -21,46 +21,31 @@
       font-family: "Courier New", monospace; font-size: 11px;
       color: #888; letter-spacing: 2px;
     }
-    #ruffle-container {
-      width: 100vw;
-      height: 100vh;
-    }
-    #ruffle-container ruffle-player {
-      width: 100%;
-      height: 100%;
-    }
+    #ruffle-container { width: 100vw; height: 100vh; }
+    #ruffle-container ruffle-player { width: 100%; height: 100%; }
   </style>
 </head>
 <body>
-
 <div id="status">
   <h2>RUN 2</h2>
   <div class="sub" id="statusText">Loading...</div>
 </div>
-
 <div id="ruffle-container"></div>
-
 <script src="https://mathcordxp.github.io/swf/ruffle/ruffle.js"></script>
 <script>
 window.addEventListener('load', function () {
   var statusEl  = document.getElementById('status');
   var statusTxt = document.getElementById('statusText');
-
   var RufflePlayer = window.RufflePlayer;
-  if (!RufflePlayer) {
-    statusTxt.textContent = 'Error: Ruffle not loaded';
-    return;
-  }
-
+  if (!RufflePlayer) { statusTxt.textContent = 'Error: Ruffle not loaded'; return; }
   var ruffle = RufflePlayer.newest();
   var player = ruffle.createPlayer();
-  player.style.width  = '100%';
+  player.style.width = '100%';
   player.style.height = '100%';
-
   document.getElementById('ruffle-container').appendChild(player);
-
+  statusTxt.textContent = 'Loading game...';
   player.load({
-    url: 'https://mathcordxp.github.io/swf/run2/game/run2.swf',
+    url: 'https://cdn.jsdelivr.net/gh/kuru-bana/End-CREDITS@main/run-2/run2.swf',
     autoplay: 'on',
     unmuteOverlay: 'hidden',
   }).then(function () {
@@ -68,8 +53,6 @@ window.addEventListener('load', function () {
   }).catch(function (e) {
     statusTxt.textContent = 'Error: ' + (e.message || String(e));
   });
-
-  statusTxt.textContent = 'Loading game...';
 });
 </script>
 </body>
