@@ -37,6 +37,25 @@
   <div class="pct" id="pct">0%</div>
 </div>
 <div id="gameContainer"></div>
+<script>
+(function () {
+  var NOISE = ['FreezeNovaAPI', 'ForceToShowRealAd', 'MissingMethodException', 'UnloadTime', 'Unloading', 'MarkObjects'];
+  function isNoise(args) {
+    return args.some(function(a) {
+      var s = typeof a === 'string' ? a : (a && a.message ? a.message : '');
+      return NOISE.some(function(n) { return s.indexOf(n) !== -1; });
+    });
+  }
+  var _log = console.log.bind(console), _warn = console.warn.bind(console), _error = console.error.bind(console);
+  console.log   = function() { if (!isNoise([].slice.call(arguments))) _log.apply(console, arguments); };
+  console.warn  = function() { if (!isNoise([].slice.call(arguments))) _warn.apply(console, arguments); };
+  console.error = function() { if (!isNoise([].slice.call(arguments))) _error.apply(console, arguments); };
+  window.addEventListener('unhandledrejection', function(e) {
+    var msg = e.reason && e.reason.message ? e.reason.message : String(e.reason);
+    if (isNoise([msg])) e.preventDefault();
+  });
+})();
+</script>
 <script src="https://cdn.jsdelivr.net/gh/kuru-bana/End-CREDITS@main/uno/Build/UnityLoader.js"></script>
 <script>
 (function () {
