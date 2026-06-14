@@ -57,11 +57,18 @@
     'adjusting settings in scene',
     'running openGL',
     'user entered scene',
+    'Failed to create PositionWorklet',
+    'Unable to load a worklet',
+    'ServiceWorkerRegistration',
+    'invalid state',
+    '_godot_js_pwa',
+    'PositionWorklet',
   ];
   function isNoise(args) {
     return args.some(function(a) {
-      if (typeof a !== 'string') return false;
-      return NOISE.some(function(n) { return a.indexOf(n) !== -1; });
+      var s = (typeof a === 'string') ? a : (a && a.message ? a.message : '');
+      if (!s) return false;
+      return NOISE.some(function(n) { return s.toLowerCase().indexOf(n.toLowerCase()) !== -1; });
     });
   }
   var _log   = console.log.bind(console);
@@ -70,6 +77,11 @@
   console.log   = function() { if (!isNoise([].slice.call(arguments))) _log.apply(console, arguments); };
   console.warn  = function() { if (!isNoise([].slice.call(arguments))) _warn.apply(console, arguments); };
   console.error = function() { if (!isNoise([].slice.call(arguments))) _error.apply(console, arguments); };
+
+  window.addEventListener('unhandledrejection', function(e) {
+    var msg = (e.reason && e.reason.message) ? e.reason.message : String(e.reason);
+    if (isNoise([msg])) { e.preventDefault(); }
+  });
 })();
 </script>
 
